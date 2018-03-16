@@ -1,0 +1,67 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cli
+  namespace: org1
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: cli
+    spec:
+      hostname: cli     
+      containers:
+      - name: cli
+        image: hyperledger/fabric-tools:x86_64-1.0.5
+        env:
+        - name: GOPATH
+          value: /opt/gopath
+        - name: CORE_VM_ENDPOINT
+          value: unix:///host/var/run/docker.sock
+        - name: CORE_PEER_ID
+          value: cli
+        - name: CORE_LOGGING_LEVEL
+          value: DEBUG
+        - name: CORE_PEER_ADDRESS
+          value: peer0:7051
+        - name: CORE_PEER_TLS_ENABLED
+          value: 'false'
+        - name: CORE_PEER_TLS_CERT_FILE
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt
+        - name: CORE_PEER_TLS_KEY_FILE
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key
+        - name: CORE_PEER_TLS_ROOTCERT_FILE
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+        - name: CORE_PEER_LOCALMSPID
+          value: Org1MSP
+        - name: CHANNEL_NAME
+          value: mychannel        
+        volumeMounts:
+        - name: run
+          mountPath: /host/var/run/
+        - name: nfs-bc
+          mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+          subPath: crypto-config
+        - name: nfs-bc
+          mountPath: /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/go
+          subPath: chaincode
+        - name: nfs-bc
+          mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+          subPath: scripts
+        - name: nfs-bc
+          mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+          subPath: channel-artifacts
+        workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+        command: ["/bin/bash", "-c", "--"]
+        args: ["while true; do sleep 30; done;"]
+      volumes:
+      - name: nfs-bc
+        persistentVolumeClaim:
+             claimName: nfs-bc
+      - name: run
+        hostPath:
+          path: /var/run

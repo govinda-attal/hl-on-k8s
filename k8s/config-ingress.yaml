@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: org-ing
+  namespace: org1
+spec:
+  rules:
+  - host: couchdb.peer0.org1
+    http:
+      paths:
+      - backend:
+          serviceName: peer0
+          servicePort: 5984

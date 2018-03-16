@@ -1,0 +1,4 @@
+{
+	"dns": ["10.96.0.10","192.168.0.1"],
+    "dns-search": ["org1.svc.cluster.local", "default.svc.cluster.local", "svc.cluster.local"]
+}
